@@ -67,23 +67,29 @@ def create_cache_dir(argv):
     return dir_name
 
 
-def save_page_to_cache(page_url, content, dir_name):
+def save_page_to_cache(page_url, content):
     """
-    save page content to file
+    save content from curent page to file
     @param page_url: filename from page url # TODO
     @param content: content of page
     @param dir_name: cache dir from argv
-    @return: create file
+    @return: filename
     """
-    filename = dir_name + '/' + remove_domain(page_url)
+    filename = path + '/' + remove_domain(page_url)
     print(filename)
     with open(filename, "w") as f_new:
         f_new.write(content)
     return filename
 
 
-def read_cache(name, dir_name):
-    filename = dir_name + '/' + remove_domain(name)
+def read_cache(name):
+    """
+    Func for checking cache and showing pages
+    @param name: name of file where page was cached
+    @return: cached text from file
+    """
+    filename = path + '/' + remove_domain(name)
+    print(path)
     if os.path.exists(filename):
         with open(filename, "r") as file_open:
             cache = file_open.read()
@@ -93,6 +99,11 @@ def read_cache(name, dir_name):
 
 
 def remove_domain(page_url):
+    """
+    func for removing domain .com and ect from url
+    @param page_url: url from input
+    @return:
+    """
     filename = page_url.split('.')
     return filename[0]
 
@@ -100,18 +111,19 @@ def remove_domain(page_url):
 args = sys.argv
 path = create_cache_dir(args)
 history = deque()
-while (url := input_url()) != "exit":
+while (action := input_url()) != "exit":
     page = ''
-    if read_cache(url, path):
-        page = read_cache(url, path)
-    elif url == 'bloomberg_com':
+    if read_cache(action):
+        page = read_cache(action)
+    elif action == 'bloomberg_com':
         page = bloomberg_com
-        history.append(save_page_to_cache("bloomberg", page, path))
-    elif url == 'nytimes_com':
+        history.append(save_page_to_cache("bloomberg", page))
+    elif action == 'nytimes_com':
         page = nytimes_com
-        history.append(save_page_to_cache("nytimes", page, path))
-    elif url == 'back':
-        pass
-    else:
-        print("error")
+        history.append(save_page_to_cache("nytimes", page))
+    elif action == 'back':
+        history.pop()
+        page = read_cache(history.pop())
+    # else:
+    #     print("error")
     print(page)
