@@ -39,27 +39,14 @@ Twitter and Square Chief Executive Officer Jack Dorsey
 '''
 
 
-def input_url() -> str:
-    """
-    func for processing user input to out format
-    check for at least one dot else Errno message
-    :return: formatted url or exit command
-    """
-    user_url = input()
-    if user_url == "exit":
-        return "exit"
-    elif not user_url.count('.'):
-        print("Error: Incorrect URL")
-    return user_url.replace('.', '_')
-
-
 def create_cache_dir(argv):
     """
     func to create dir from argv
     #TODO check for more than 1 args
     @return: path to folder with cached pages
     """
-    if len(argv) != 2:
+    if len(argv) > 2:
+        print("Too much arguments")
         pass    # TODO
     dir_name = argv[1]
     if not os.path.exists(dir_name):
@@ -69,14 +56,12 @@ def create_cache_dir(argv):
 
 def save_page_to_cache(page_url, content):
     """
-    save content from curent page to file
+    save content from current page to file
     @param page_url: filename from page url # TODO
     @param content: content of page
-    @param dir_name: cache dir from argv
     @return: filename
     """
     filename = path + '/' + remove_domain(page_url)
-    print(filename)
     with open(filename, "w") as f_new:
         f_new.write(content)
     return filename
@@ -89,13 +74,23 @@ def read_cache(name):
     @return: cached text from file
     """
     filename = path + '/' + remove_domain(name)
-    print(path)
     if os.path.exists(filename):
         with open(filename, "r") as file_open:
             cache = file_open.read()
             return cache
     else:
         return False
+
+
+def check_cache(name):
+    """
+    check cache dir if there is cached page
+    @param name:
+    @return: bool
+    """
+    filename = path + '/' + remove_domain(name)
+    if os.path.exists(filename):
+        return True
 
 
 def remove_domain(page_url):
@@ -108,22 +103,36 @@ def remove_domain(page_url):
     return filename[0]
 
 
+def is_url(act):
+    """
+    func check if arg is url and refactor it
+    @param act: url or action
+    @return: refactored url replace . _
+    """
+    if act.count('.'):
+        return act.replace('.', '_')
+
+
 args = sys.argv
 path = create_cache_dir(args)
 history = deque()
-while (action := input_url()) != "exit":
+while (action := input()) != "exit":
     page = ''
-    if read_cache(action):
+    if check_cache(action):
         page = read_cache(action)
-    elif action == 'bloomberg_com':
-        page = bloomberg_com
-        history.append(save_page_to_cache("bloomberg", page))
-    elif action == 'nytimes_com':
-        page = nytimes_com
-        history.append(save_page_to_cache("nytimes", page))
+        history.append(action)
+    elif is_url(action):
+        if action == 'bloomberg.com':
+            page = bloomberg_com
+            history.append(save_page_to_cache("bloomberg", page))
+        elif action == 'nytimes.com':
+            page = nytimes_com
+            history.append(save_page_to_cache("nytimes", page))
+        else:
+            print("Error: Incorrect URL")
     elif action == 'back':
-        history.pop()
+        # history.pop()
         page = read_cache(history.pop())
-    # else:
-    #     print("error")
+    else:
+        print("error")
     print(page)
