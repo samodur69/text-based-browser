@@ -1,6 +1,6 @@
 import sys
 import os
-from collections import deque
+# from collections import deque
 
 
 nytimes_com = '''
@@ -115,7 +115,7 @@ def is_url(act):
 
 args = sys.argv
 path = create_cache_dir(args)
-history = deque()
+history = []
 while (action := input()) != "exit":
     page = ''
     if check_cache(action):
@@ -125,14 +125,20 @@ while (action := input()) != "exit":
         if action == 'bloomberg.com':
             page = bloomberg_com
             history.append(save_page_to_cache("bloomberg", page))
+            save_page_to_cache('bloomberg', page)
         elif action == 'nytimes.com':
             page = nytimes_com
             history.append(save_page_to_cache("nytimes", page))
+            save_page_to_cache("nytimes", page)
         else:
             print("Error: Incorrect URL")
     elif action == 'back':
-        # history.pop()
-        page = read_cache(history.pop())
+        if len(history) > 1:
+            history.pop()
+            page = read_cache(history[-1])
+        continue
+    elif action == 'history':
+            print(history[-1])
     else:
         print("error")
     print(page)
