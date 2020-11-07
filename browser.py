@@ -18,7 +18,6 @@ Jessica Wade has added nearly 700 Wikipedia biographies for
  years.
 
 '''
-
 bloomberg_com = '''
 The Space Race: From Apollo 11 to Elon Musk
 
@@ -133,12 +132,11 @@ while (action := input()) != "exit":
         else:
             print("Error: Incorrect URL")
     elif action == 'back':
-        if len(history) > 1:
-            history.pop()
-            page = read_cache(history[-1])
-        continue
+        # if len(history) >= 1:
+        history.pop()
+        page = read_cache(history.pop())
     elif action == 'history':
-            print(history[-1])
+        print(history[-1])
     else:
         print("error")
     print(page)
