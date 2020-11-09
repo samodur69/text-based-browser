@@ -63,7 +63,7 @@ def save_page_to_cache(page_url, content):
     filename = path + '/' + remove_domain(page_url)
     with open(filename, "w") as f_new:
         f_new.write(content)
-    return filename
+    return remove_domain(page_url)
 
 
 def read_cache(name):
@@ -123,20 +123,19 @@ while (action := input()) != "exit":
     elif is_url(action):
         if action == 'bloomberg.com':
             page = bloomberg_com
-            history.append(save_page_to_cache("bloomberg", page))
-            save_page_to_cache('bloomberg', page)
+            history.append(save_page_to_cache(remove_domain(action), page))
         elif action == 'nytimes.com':
             page = nytimes_com
-            history.append(save_page_to_cache("nytimes", page))
-            save_page_to_cache("nytimes", page)
+            history.append(save_page_to_cache(remove_domain(action), page))
         else:
             print("Error: Incorrect URL")
     elif action == 'back':
-        # if len(history) >= 1:
+        # if len(history) >= 1: # TODO check history
         history.pop()
         page = read_cache(history.pop())
     elif action == 'history':
-        print(history[-1])
+        for el in history:
+            print(el)
     else:
         print("error")
     print(page)
