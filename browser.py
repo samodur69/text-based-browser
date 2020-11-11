@@ -1,5 +1,6 @@
 import sys
 import os
+import requests
 # from collections import deque
 
 
@@ -76,6 +77,7 @@ def read_cache(name):
     if os.path.exists(filename):
         with open(filename, "r") as file_open:
             cache = file_open.read()
+            file_open.close()
             return cache
     else:
         return False
@@ -109,33 +111,64 @@ def is_url(act):
     @return: refactored url replace . _
     """
     if act.count('.'):
-        return act.replace('.', '_')
+        return True
+
+
+def check_connection(url):
+    """
+    check response from server.
+    @param url: url
+    @return: bool
+    """
+    r = requests.get(url)
+    if 200 <= r.status_code < 400:
+        return True
+
+
+def show_content(url):
+    r = requests.get(url)
+    return r.text
+
+
+def add_prefix(url):
+    """
+    add https:// to url
+    @param url: url without http
+    @return: url
+    """
+    return "https://" + url
 
 
 args = sys.argv
 path = create_cache_dir(args)
+actions = ['back', 'quit']
 history = []
-while (action := input()) != "exit":
+while (url := input("Enter url:\n")) != "exit":
     page = ''
-    if check_cache(action):
-        page = read_cache(action)
-        history.append(action)
-    elif is_url(action):
-        if action == 'bloomberg.com':
-            page = bloomberg_com
-            history.append(save_page_to_cache(remove_domain(action), page))
-        elif action == 'nytimes.com':
-            page = nytimes_com
-            history.append(save_page_to_cache(remove_domain(action), page))
+    if url in actions:
+        if url == 'back':
+            # if len(history) >= 1: # TODO check history
+            history.pop()
+            page = read_cache(history.pop())
+        elif url == 'history':
+            for el in history:
+                print(el)
+    if check_cache(url):
+        page = read_cache(url)
+        history.append(url)
+    elif is_url(url):
+        # if action == 'bloomberg.com':
+        #     page = bloomberg_com
+        #     history.append(save_page_to_cache(remove_domain(action), page))
+        # elif action == 'nytimes.com':
+        #     page = nytimes_com
+        #     history.append(save_page_to_cache(remove_domain(action), page))
+        if check_connection(add_prefix(url)):
+            page = show_content(add_prefix(url))
+            history.append(save_page_to_cache(remove_domain(url), page))
         else:
             print("Error: Incorrect URL")
-    elif action == 'back':
-        # if len(history) >= 1: # TODO check history
-        history.pop()
-        page = read_cache(history.pop())
-    elif action == 'history':
-        for el in history:
-            print(el)
+
     else:
-        print("error")
+        print("Error: Incorrect URL")
     print(page)
