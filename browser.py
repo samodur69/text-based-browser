@@ -1,6 +1,7 @@
 import sys
 import os
 import requests
+from bs4 import BeautifulSoup
 # from collections import deque
 
 
@@ -45,9 +46,8 @@ def create_cache_dir(argv):
     #TODO check for more than 1 args
     @return: path to folder with cached pages
     """
-    if len(argv) > 2:
-        print("Too much arguments")
-        pass    # TODO
+    if len(argv) == 1:
+        print("Restart browser with cache-dir argument")
     dir_name = argv[1]
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
@@ -168,7 +168,6 @@ while (url := input("Enter url:\n")) != "exit":
             history.append(save_page_to_cache(remove_domain(url), page))
         else:
             print("Error: Incorrect URL")
-
     else:
         print("Error: Incorrect URL")
     print(page)
