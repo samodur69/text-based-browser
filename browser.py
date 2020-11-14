@@ -2,7 +2,6 @@ import sys
 import os
 import requests
 from bs4 import BeautifulSoup
-# from collections import deque
 
 
 nytimes_com = '''
@@ -114,37 +113,39 @@ def is_url(act):
         return True
 
 
-def check_connection(url):
+def check_connection(link):
     """
     check response from server.
-    @param url: url
+    @param link: url
     @return: bool
     """
-    r = requests.get(url)
+    r = requests.get(link)
     if 200 <= r.status_code < 400:
         return True
 
 
-def show_content(url):
-    r = requests.get(url)
+def show_content(link):
+    r = requests.get(link)
     return r.text
 
 
-def add_prefix(url):
+def add_prefix(link):
     """
     add https:// to url
-    @param url: url without http
+    @param link: url without http
     @return: url
     """
-    return "https://" + url
+    return "https://" + link
 
 
 args = sys.argv
 path = create_cache_dir(args)
 actions = ['back', 'quit']
 history = []
+tag_list = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'ul', 'ol', 'li']
 while (url := input("Enter url:\n")) != "exit":
     page = ''
+    pretty_page = ''
     if url in actions:
         if url == 'back':
             # if len(history) >= 1: # TODO check history
@@ -155,6 +156,7 @@ while (url := input("Enter url:\n")) != "exit":
                 print(el)
     if check_cache(url):
         page = read_cache(url)
+        print(page)
         history.append(url)
     elif is_url(url):
         # if action == 'bloomberg.com':
@@ -164,10 +166,15 @@ while (url := input("Enter url:\n")) != "exit":
         #     page = nytimes_com
         #     history.append(save_page_to_cache(remove_domain(action), page))
         if check_connection(add_prefix(url)):
-            page = show_content(add_prefix(url))
-            history.append(save_page_to_cache(remove_domain(url), page))
+            # page = show_content(add_prefix(url))
+            page = requests.get(add_prefix(url))
+            soup = BeautifulSoup(page.content, "html.parser")
+            we_need = soup.find_all(tag_list)
+            for el in we_need:
+                pretty_page += el.get_text() + '\n'
+            print(pretty_page)
+            history.append(save_page_to_cache(remove_domain(url), pretty_page))
         else:
             print("Error: Incorrect URL")
     else:
         print("Error: Incorrect URL")
-    print(page)
