@@ -2,7 +2,7 @@ import sys
 import os
 import requests
 from bs4 import BeautifulSoup
-
+from colorama import Fore, Style
 
 def create_cache_dir():
     """
@@ -34,16 +34,11 @@ def display_cache(path):
 
 
 def display_cache2(filename):
-    """
-    Func for checking cache and showing pages
-    @param path: name of file where page was cached
-    @return: cached text from file
-    """
     try:
-        with open(path, "r", encoding='UTF-8') as file_open:
+        with open(os.path.join(sys.argv[1], filename), "r", encoding='UTF-8') as file_open:
             print(file_open.read())
     except IndexError:
-        print(f'File {path} not found')
+        print(f'File {filename} not found')
 
 
 def cache_page(url, path):
@@ -93,7 +88,7 @@ def main():
     actions = ['back', 'quit', 'history']
     history = []
     directory = create_cache_dir()
-    while (url := input("Enter url:")) != "exit":
+    while (url := input("Enter url:\n")) != "exit":
         path = os.path.join(directory, remove_domain(url))
         # path = directory + '/' + remove_domain(url)
         if url in actions:
@@ -106,9 +101,8 @@ def main():
                     print(el)
         else:
             if os.path.isfile(path):
-                print("DETECTED")
-                # display_cache(path)
-                display_cache2(remove_domain(url))
+                display_cache(path)
+                # display_cache2(remove_domain(url))
                 history.append(remove_domain(url))
             elif url.count('.'):
                 if check_connection(add_prefix(url)):
