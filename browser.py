@@ -2,7 +2,9 @@ import sys
 import os
 import requests
 from bs4 import BeautifulSoup
-from colorama import Fore, Style
+from colorama import Fore, init
+init(autoreset=True)
+
 
 def create_cache_dir():
     """
@@ -45,10 +47,15 @@ def cache_page(url, path):
     tag_list = ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'ul', 'ol', 'li']
     page = requests.get(add_prefix(url))
     soup = BeautifulSoup(page.content, "html.parser")
-    we_need = soup.find_all(tag_list)
+    page = []
+    for tag in soup.find_all(tag_list):
+        text = tag.get_text()
+        if tag.name == 'a':
+            text = Fore.BLUE + text
+        page.append(text)
     with open(path, 'w+', encoding='UTF-8') as cache:
-        for el in we_need:
-            cache.write(el.get_text() + '\n')
+        for el in page:
+            cache.write(el + '\n')
 
 
 def remove_domain(link):
@@ -90,7 +97,6 @@ def main():
     directory = create_cache_dir()
     while (url := input("Enter url:\n")) != "exit":
         path = os.path.join(directory, remove_domain(url))
-        # path = directory + '/' + remove_domain(url)
         if url in actions:
             if url == 'back':
                 # if len(history) >= 1: # TODO check history
@@ -101,8 +107,7 @@ def main():
                     print(el)
         else:
             if os.path.isfile(path):
-                display_cache(path)
-                # display_cache2(remove_domain(url))
+                display_cache2(remove_domain(url))
                 history.append(remove_domain(url))
             elif url.count('.'):
                 if check_connection(add_prefix(url)):
